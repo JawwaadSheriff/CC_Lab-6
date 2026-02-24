@@ -5,7 +5,9 @@ pipeline {
 
         stage('Build Backend Image') {
             steps {
-                sh 'docker build -t backend-app backend'
+                sh '''
+                docker build -t backend-app backend
+                '''
             }
         }
 
@@ -13,9 +15,11 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f backend1 backend2 || true
+
                 docker run -d --name backend1 backend-app
                 docker run -d --name backend2 backend-app
-                sleep 3
+
+                sleep 5
                 '''
             }
         }
@@ -24,9 +28,15 @@ pipeline {
             steps {
                 sh '''
                 docker rm -f nginx-lb || true
+
                 docker run -d --name nginx-lb -p 80:80 nginx
-                sleep 2
+
+                sleep 5
+
                 docker cp nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
+
+                sleep 3
+
                 docker exec nginx-lb nginx -s reload
                 '''
             }
